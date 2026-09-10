@@ -203,6 +203,27 @@
       }
       .team-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
+      /* ── Product media ── */
+      .product-media {
+        position: relative;
+        width: 100%;
+        height: 210px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 18px;
+        background: rgba(15, 16, 25, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .product-media img, .product-media video, .product-media iframe {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.35s ease;
+      }
+      .card:hover .product-media img {
+        transform: scale(1.04);
+      }
+
       /* ── Stars ── */
       .stars { color: #fbbf24; font-size: 1.1rem; letter-spacing: 2px; }
 
@@ -610,6 +631,29 @@
       observeReveal();
     }
 
+    function getEmbedVideoUrl(url) {
+      if (!url) return null;
+      const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      if (yt) return `https://www.youtube.com/embed/${yt[1]}?rel=0`;
+      const vm = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)/);
+      if (vm) return `https://player.vimeo.com/video/${vm[3]}`;
+      return null;
+    }
+
+    function renderProductMedia(p) {
+      if (p.video_url) {
+        const embedUrl = getEmbedVideoUrl(p.video_url);
+        if (embedUrl) {
+          return `<div class="product-media"><iframe src="${embedUrl}" title="${p.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        }
+        return `<div class="product-media"><video controls playsinline preload="metadata" poster="${p.image_url || ''}"><source src="${p.video_url}"></video></div>`;
+      }
+      if (p.image_url) {
+        return `<div class="product-media"><img src="${p.image_url}" alt="${p.title}" loading="lazy"/></div>`;
+      }
+      return `<div class="service-icon">${p.icon || '🚀'}</div>`;
+    }
+
     function renderProducts(items) {
       const g = document.getElementById('products-grid');
       if (!items || !items.length) {
@@ -618,11 +662,13 @@
       }
       const activeItems = items.filter(p => p.active !== false);
       g.innerHTML = activeItems.map((p,i) => `
-        <article class="glass card p-6 reveal ${delayClass(i)}">
-          <div class="service-icon">${p.icon || '🚀'}</div>
-          <h3 class="text-xl font-semibold mb-2">${p.title}</h3>
-          <p class="text-sm leading-relaxed mb-4" style="color:var(--muted)">${p.description}</p>
-          ${p.tags && p.tags.length ? `<div class="flex flex-wrap gap-2 mb-4">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+        <article class="glass card p-6 reveal ${delayClass(i)} flex flex-col justify-between">
+          <div>
+            ${renderProductMedia(p)}
+            <h3 class="text-xl font-semibold mb-2">${p.title}</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--muted)">${p.description}</p>
+            ${p.tags && p.tags.length ? `<div class="flex flex-wrap gap-2 mb-4">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+          </div>
           <div class="flex gap-3 pt-2">
             <a href="#contact" class="btn btn-primary text-xs px-4 py-2">Learn More</a>
             <a href="#contact" class="btn btn-secondary text-xs px-4 py-2">Request Demo</a>

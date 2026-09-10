@@ -37,9 +37,9 @@
       { id: 's6', icon: '☁️', title: 'Cloud & DevOps Enablement', description: 'Infrastructure as code, CI/CD pipelines, and cloud architecture on AWS, Azure, and GCP for resilient, scalable deployments.', order: 6, active: true }
     ],
     products: [
-      { id: 'p1', icon: '📦', title: 'BraeNova StockMaster', description: 'Mobile-first inventory and sales management application for local businesses. Track stock, process sales, and generate real-time reports from any device.', tags: ['Mobile', 'Inventory', 'POS'], order: 1, active: true },
-      { id: 'p2', icon: '📊', title: 'MSME Tax & IRC Compliance Tracker', description: 'Automated financial reporting and compliance tool for Micro, Small and Medium Enterprises. Track tax deadlines, generate reports, and stay compliant.', tags: ['Finance', 'Compliance', 'MSME'], order: 2, active: true },
-      { id: 'p3', icon: '📄', title: 'Electronic Resumption & Administrative Workflows', description: 'Modernizing institutional paperwork with digital workflow engines. Convert legacy forms into secure, trackable electronic processes.', tags: ['Workflow', 'Digital', 'Enterprise'], order: 3, active: true }
+      { id: 'p1', icon: '📦', title: 'BraeNova StockMaster', description: 'Mobile-first inventory and sales management application for local businesses. Track stock, process sales, and generate real-time reports from any device.', image_url: '', video_url: '', tags: ['Mobile', 'Inventory', 'POS'], order: 1, active: true },
+      { id: 'p2', icon: '📊', title: 'MSME Tax & IRC Compliance Tracker', description: 'Automated financial reporting and compliance tool for Micro, Small and Medium Enterprises. Track tax deadlines, generate reports, and stay compliant.', image_url: '', video_url: '', tags: ['Finance', 'Compliance', 'MSME'], order: 2, active: true },
+      { id: 'p3', icon: '📄', title: 'Electronic Resumption & Administrative Workflows', description: 'Modernizing institutional paperwork with digital workflow engines. Convert legacy forms into secure, trackable electronic processes.', image_url: '', video_url: '', tags: ['Workflow', 'Digital', 'Enterprise'], order: 3, active: true }
     ],
     team: [
       { id: 't1', name: 'Joel Namuri', role: 'Lead Solutions Architect & Founder', bio: 'Specialist in full-stack architecture, EdTech infrastructure, and business automation systems.', photo_url: '', order: 1 }

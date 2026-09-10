@@ -742,7 +742,7 @@
     }
     function getItemIcon(type, d) {
       if (type === 'service') return d.icon || '⚡';
-      if (type === 'product') return d.icon || '📦';
+      if (type === 'product') return d.image_url ? `<img src="${d.image_url}" style="width:36px;height:36px;border-radius:8px;object-fit:cover">` : (d.icon || '📦');
       if (type === 'team') return d.photo_url ? `<img src="${d.photo_url}" style="width:36px;height:36px;border-radius:8px;object-fit:cover">` : `<span style="font-size:.85rem;font-weight:700;color:var(--accent)">${(d.name||'?').charAt(0).toUpperCase()}</span>`;
       if (type === 'testimonial') return '⭐';
       return '•';
@@ -792,11 +792,13 @@
         { id:'m-order', label:'Display Order',  type:'number',   placeholder:'1' }
       ],
       product: [
-        { id:'m-icon',  label:'Icon (emoji)',   type:'text',     placeholder:'📦' },
-        { id:'m-title', label:'Title',           type:'text',     placeholder:'BraeNova StockMaster', required:true },
-        { id:'m-desc',  label:'Description',     type:'textarea', placeholder:'What does this product do?', required:true },
+        { id:'m-title', label:'Product Title',       type:'text',     placeholder:'BraeNova StockMaster', required:true },
+        { id:'m-image', label:'Product Image URL',   type:'url',      placeholder:'https://example.com/screenshot.jpg', tip:'Direct link to a screenshot or banner image' },
+        { id:'m-video', label:'Video / Demo URL',    type:'url',      placeholder:'https://youtube.com/watch?v=... or .mp4', tip:'Optional YouTube, Vimeo, or MP4 video URL' },
+        { id:'m-icon',  label:'Icon (fallback emoji)', type:'text',   placeholder:'📦' },
+        { id:'m-desc',  label:'Description',         type:'textarea', placeholder:'What does this product do?', required:true },
         { id:'m-tags',  label:'Tags (comma-separated)', type:'text', placeholder:'Mobile, Inventory, POS' },
-        { id:'m-order', label:'Display Order',   type:'number',   placeholder:'1' }
+        { id:'m-order', label:'Display Order',       type:'number',   placeholder:'1' }
       ],
       team: [
         { id:'m-name',  label:'Full Name',       type:'text',     placeholder:'Joel Namuri',       required:true },
@@ -853,7 +855,7 @@
         else {
           const key = f.id.replace('m-','');
           const mapping = { icon:'icon',title:'title',desc:'description',name:'name',role:'role',
-            bio:'bio',photo:'photo_url',company:'company',content:'content',quote:'content',order:'order' };
+            bio:'bio',photo:'photo_url',image:'image_url',video:'video_url',company:'company',content:'content',quote:'content',order:'order' };
           val = existing[mapping[key]] ?? '';
         }
         return buildModalField(f, val);
@@ -889,8 +891,8 @@
           const val = el.value.trim();
           if (f.required && !val) { showToast(`"${f.label}" is required.`,'error'); btn.textContent='Save Item'; btn.disabled=false; return; }
           const keyMap = { 'm-icon':'icon','m-title':'title','m-desc':'description','m-name':'name',
-            'm-role':'role','m-bio':'bio','m-photo':'photo_url','m-company':'company',
-            'm-content':'content','m-order':'order','m-tags':'tags_raw' };
+            'm-role':'role','m-bio':'bio','m-photo':'photo_url','m-image':'image_url','m-video':'video_url',
+            'm-company':'company','m-content':'content','m-order':'order','m-tags':'tags_raw' };
           const key = keyMap[f.id];
           if (key === 'order') data.order = parseInt(val) || 0;
           else if (key === 'tags_raw') data.tags = val ? val.split(',').map(t=>t.trim()).filter(Boolean) : [];
