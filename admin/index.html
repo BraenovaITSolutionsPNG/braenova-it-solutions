@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard — BraeNova IT Solutions</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --bg: #08080e;
+        --card: #0f1019;
+        --card2: #161824;
+        --border: rgba(255, 255, 255, 0.08);
+        --border-subtle: rgba(255, 255, 255, 0.04);
+        --accent: #22d3ee;
+        --accent-2: #818cf8;
+        --accent-glow: rgba(34, 211, 238, 0.15);
+        --fg: #e2e8f0;
+        --muted: #64748b;
+        --danger: #f87171;
+        --success: #34d399;
+      }
+      * { box-sizing: border-box; }
+      body {
+        font-family: 'Inter', system-ui, sans-serif;
+        background-color: var(--bg);
+        color: var(--fg);
+        min-height: 100vh;
+        margin: 0;
+      }
+      .mono { font-family: 'JetBrains Mono', monospace; }
+
+      /* App Shell */
+      #login-screen {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 24px;
+        background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(34,211,238,0.12), transparent);
+      }
+      .login-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 40px;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 25px 60px -15px rgba(0,0,0,0.8);
+      }
+      #admin-app { display: none; }
+      #admin-app.active { display: flex; min-height: 100vh; }
+
+      /* Sidebar */
+      #sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        background: var(--card);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+      }
+      .sidebar-logo {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        margin: 2px 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border: none;
+        background: none;
+        width: calc(100% - 16px);
+        text-align: left;
+      }
+      .nav-item:hover { color: var(--fg); background: var(--card2); }
+      .nav-item.active { color: var(--accent); background: rgba(34,211,238,0.1); font-weight: 600; }
+      .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+      .nav-section {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        padding: 12px 16px 4px;
+      }
+
+      /* Main Content */
+      #content-area {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      #topbar {
+        height: 60px;
+        border-bottom: 1px solid var(--border);
+        background: var(--card);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      #panels { padding: 28px; flex: 1; }
+
+      /* Panel */
+      .panel { display: none; }
+      .panel.active { display: block; }
+
+      /* Cards & Tables */
+      .admin-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 24px;
+      }
+      .admin-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .stat-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+      }
+      .stat-number { font-size: 2rem; font-weight: 800; color: var(--accent); }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border: none;
+        outline: none;
+        text-decoration: none;
+      }
+      .btn-primary { background: var(--accent); color: #08080e; }
+      .btn-primary:hover { background: #67e8f9; box-shadow: 0 0 16px rgba(34,211,238,0.4); }
+      .btn-secondary { background: var(--card2); color: var(--fg); border: 1px solid var(--border); }
+      .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+      .btn-danger { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.3); }
+      .btn-danger:hover { background: rgba(248,113,113,0.25); }
+      .btn-xs { padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; }
+
+      /* Inputs */
+      .field-label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+      .field-input {
+        width: 100%;
+        background: var(--card2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.875rem;
+        color: var(--fg);
+        outline: none;
+        transition: border-color 0.15s ease;
+        font-family: inherit;
+      }
+      .field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(34,211,238,0.15); }
+      textarea.field-input { resize: vertical; }
+
+      /* Item row */
+      .item-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border-subtle);
+        transition: background 0.15s ease;
+      }
+      .item-row:last-child { border-bottom: none; }
+      .item-row:hover { background: rgba(255,255,255,0.02); }
+      .item-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--card2); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+
+      /* Modal */
+      #modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(4px);
+        z-index: 50;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      #modal-overlay.open { display: flex; }
+      .modal-box {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        width: 100%;
+        max-width: 540px;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 28px;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.9);
+      }
+
+      /* Messages item */
+      .msg-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-subtle);
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .msg-item:hover { background: rgba(255,255,255,0.02); }
+      .msg-item.unread { border-left: 3px solid var(--accent); background: rgba(34,211,238,0.03); }
+      .msg-body { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; color: var(--muted); font-size: 0.875rem; line-height: 1.6; }
+      .msg-body.open { max-height: 400px; padding-top: 12px; }
+
+      /* Badge */
+      .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; background: rgba(34,211,238,0.15); color: var(--accent); }
+      .badge-success { background: rgba(52,211,153,0.15); color: var(--success); }
+
+      /* Toast */
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: var(--card2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+        z-index: 100;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      #toast.show { transform: translateY(0); opacity: 1; }
+      #toast.success { border-color: rgba(52,211,153,0.4); color: var(--success); }
+      #toast.error { border-color: rgba(248,113,113,0.4); color: var(--danger); }
+
+      .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 0.875rem; }
+      .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+
+      .star-btn { font-size: 1.4rem; cursor: pointer; transition: transform .1s ease; background: none; border: none; }
+      .star-btn:hover { transform: scale(1.2); }
+      .star-btn.active { color: #fbbf24; }
+      .star-btn:not(.active) { color: var(--border); }
+    </style>
+  </head>
+  <body>
+
+    <!-- ══════════════════════════════════════
+         LOGIN SCREEN
+    ══════════════════════════════════════ -->
+    <div id="login-screen">
+      <div class="login-card">
+        <div class="text-center mb-8">
+          <div class="text-2xl font-extrabold tracking-widest uppercase" style="color:var(--accent)">BraeNova</div>
+          <div class="text-sm mt-1" style="color:var(--muted)">Management Dashboard</div>
+          <div class="mt-6 w-12 h-12 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-2xl mx-auto">🔐</div>
+          <h1 class="text-xl font-bold mt-4">Sign In</h1>
+          <p class="text-sm mt-1" style="color:var(--muted)">Manage all content and inquiries</p>
+        </div>
+
+        <form id="login-form" class="space-y-4" novalidate>
+          <div>
+            <label class="field-label" for="login-email">Email Address</label>
+            <input type="email" id="login-email" class="field-input" value="admin@braenova.com" required autocomplete="email" />
+          </div>
+          <div>
+            <label class="field-label" for="login-password">Password</label>
+            <input type="password" id="login-password" class="field-input" value="admin123" required autocomplete="current-password" />
+          </div>
+          <p id="login-error" class="text-xs hidden" style="color:#f87171"></p>
+          <button type="submit" class="btn btn-primary w-full mt-2" id="login-btn" style="padding:12px">Sign In →</button>
+        </form>
+
+        <div class="mt-6 pt-4 border-t border-[var(--border)] text-center">
+          <button type="button" class="btn btn-secondary w-full text-xs" onclick="quickLogin()">⚡ Quick Instant Admin Access</button>
+          <p id="db-status-pill" class="text-xs text-center mt-3 text-[var(--muted)]">
+            ⚡ Standalone Database Mode active (ready out-of-the-box).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         ADMIN APP
+    ══════════════════════════════════════ -->
+    <div id="admin-app">
+
+      <!-- SIDEBAR -->
+      <aside id="sidebar">
+        <div class="sidebar-logo">
+          <div class="w-8 h-8 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-sm">🛠</div>
+          <div>
+            <div class="text-sm font-bold" style="color:var(--accent)">BraeNova</div>
+            <div class="text-xs" style="color:var(--muted)">Admin Panel</div>
+          </div>
+        </div>
+
+        <div style="padding:12px 0;flex:1">
+          <div class="nav-section">Overview</div>
+          <button class="nav-item active" data-panel="dashboard"><span class="icon">🏠</span>Dashboard</button>
+
+          <div class="nav-section" style="margin-top:8px">Site Content</div>
+          <button class="nav-item" data-panel="hero"><span class="icon">🎯</span>Hero Section</button>
+          <button class="nav-item" data-panel="services"><span class="icon">⚡</span>Services</button>
+          <button class="nav-item" data-panel="products"><span class="icon">📦</span>Products</button>
+          <button class="nav-item" data-panel="team"><span class="icon">👥</span>Team</button>
+          <button class="nav-item" data-panel="testimonials"><span class="icon">💬</span>Testimonials</button>
+          <button class="nav-item" data-panel="about"><span class="icon">ℹ️</span>About</button>
+          <button class="nav-item" data-panel="contact"><span class="icon">📞</span>Contact Info</button>
+
+          <div class="nav-section" style="margin-top:8px">Inbox</div>
+          <button class="nav-item" data-panel="messages"><span class="icon">📩</span>Messages <span id="unread-badge" class="badge ml-auto hidden">0</span></button>
+        </div>
+
+        <!-- User info + sign out -->
+        <div style="padding:12px;border-top:1px solid var(--border)">
+          <div style="padding:10px 12px;background:var(--card2);border-radius:8px">
+            <div class="text-xs font-semibold truncate" id="user-email" style="color:var(--fg)">admin@braenova.com</div>
+            <button id="signout-btn" class="text-xs mt-1 hover:text-[var(--accent)] transition-colors" style="color:var(--muted);background:none;border:none;cursor:pointer;padding:0">Sign out</button>
+          </div>
+          <a href="../index.html" target="_blank" class="btn btn-secondary w-full mt-3 text-xs" style="font-size:.75rem">↗ View Website</a>
+        </div>
+      </aside>
+
+      <!-- CONTENT AREA -->
+      <div id="content-area">
+        <!-- Top bar -->
+        <div id="topbar">
+          <div class="flex items-center gap-3">
+            <h2 id="page-title" class="text-base font-bold">Dashboard</h2>
+            <span id="backend-badge" class="badge">⚡ Local Storage Mode</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="topbar-user" class="text-xs" style="color:var(--muted)"></span>
+          </div>
+        </div>
+
+        <!-- Panels -->
+        <div id="panels">
+
+          <!-- ── DASHBOARD ── -->
+          <div class="panel active" id="panel-dashboard">
+            <div class="mb-6">
+              <h3 class="text-xl font-bold">Welcome back 👋</h3>
+              <p class="text-sm mt-1" style="color:var(--muted)">Manage your website content and customer inquiries in real-time.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div class="stat-card"><div class="text-2xl mb-1">⚡</div><div class="stat-number" id="stat-services">—</div><div class="text-xs mt-1" style="color:var(--muted)">Services</div></div>
+              <div class="stat-card"><div class="text-2xl mb-1">📦</div><div class="stat-number" id="stat-products">—</div><div class="text-xs mt-1" style="color:var(--muted)">Products</div></div>
+              <div class="stat-card"><div class="text-2xl mb-1">👥</div><div class="stat-number" id="stat-team">—</div><div class="text-xs mt-1" style="color:var(--muted)">Team Members</div></div>
+              <div class="stat-card"><div class="text-2xl mb-1">📩</div><div class="stat-number" id="stat-messages">—</div><div class="text-xs mt-1" style="color:var(--muted)">Messages</div></div>
+            </div>
+
+            <!-- Quick actions -->
+            <div class="admin-card mb-6">
+              <div class="admin-card-header"><span class="font-semibold text-sm">Quick Actions</span></div>
+              <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button class="btn btn-secondary" onclick="switchPanel('services');openModal('service')">+ New Service</button>
+                <button class="btn btn-secondary" onclick="switchPanel('products');openModal('product')">+ New Product</button>
+                <button class="btn btn-secondary" onclick="switchPanel('team');openModal('team')">+ New Team Member</button>
+                <button class="btn btn-secondary" onclick="switchPanel('testimonials');openModal('testimonial')">+ New Testimonial</button>
+              </div>
+            </div>
+
+            <!-- Database backup & export -->
+            <div class="admin-card">
+              <div class="admin-card-header"><span class="font-semibold text-sm">Database & Backup Tools</span></div>
+              <div class="p-5 flex flex-wrap gap-4 items-center">
+                <button class="btn btn-secondary" onclick="downloadBackup()">⬇ Export Backup (JSON)</button>
+                <label class="btn btn-secondary cursor-pointer">
+                  ⬆ Restore Backup (JSON)
+                  <input type="file" id="import-file" accept=".json" class="hidden" onchange="handleImport(event)">
+                </label>
+                <button class="btn btn-danger" onclick="resetDefaults()">🔄 Reset Database to Defaults</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── HERO ── -->
+          <div class="panel" id="panel-hero">
+            <div class="mb-6">
+              <h3 class="text-xl font-bold">Hero Section</h3>
+              <p class="text-sm mt-1" style="color:var(--muted)">Edit the main headline and call-to-action buttons.</p>
+            </div>
+            <div class="admin-card">
+              <div class="admin-card-header"><span class="font-semibold text-sm">Hero Content</span></div>
+              <div class="p-5 space-y-4">
+                <div>
+                  <label class="field-label" for="h-headline">Headline <span style="color:var(--muted)">(HTML allowed — e.g. &lt;span class="gradient-text"&gt;...&lt;/span&gt;)</span></label>
+                  <textarea id="h-headline" rows="3" class="field-input" placeholder="Transforming Business..."></textarea>
+                </div>
+                <div>
+                  <label class="field-label" for="h-subheading">Subheading</label>
+                  <textarea id="h-subheading" rows="2" class="field-input" placeholder="Full-stack software engineering..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="field-label" for="h-cta1">Primary Button Text</label>
+                    <input type="text" id="h-cta1" class="field-input" placeholder="Explore Services" />
+                  </div>
+                  <div>
+                    <label class="field-label" for="h-cta2">Secondary Button Text</label>
+                    <input type="text" id="h-cta2" class="field-input" placeholder="Get In Touch" />
+                  </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveHero()">💾 Save Hero Section</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SERVICES ── -->
+          <div class="panel" id="panel-services">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-xl font-bold">Services</h3>
+                <p class="text-sm mt-1" style="color:var(--muted)">Manage the services offered on the website.</p>
+              </div>
+              <button class="btn btn-primary" onclick="openModal('service')">+ Add Service</button>
+            </div>
+            <div class="admin-card" id="services-list"></div>
+          </div>
+
+          <!-- ── PRODUCTS ── -->
+          <div class="panel" id="panel-products">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-xl font-bold">Products</h3>
+                <p class="text-sm mt-1" style="color:var(--muted)">Manage your featured product showcase.</p>
+              </div>
+              <button class="btn btn-primary" onclick="openModal('product')">+ Add Product</button>
+            </div>
+            <div class="admin-card" id="products-list"></div>
+          </div>
+
+          <!-- ── TEAM ── -->
+          <div class="panel" id="panel-team">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-xl font-bold">Team Members</h3>
+                <p class="text-sm mt-1" style="color:var(--muted)">Manage the team members displayed on the site.</p>
+              </div>
+              <button class="btn btn-primary" onclick="openModal('team')">+ Add Member</button>
+            </div>
+            <div class="admin-card" id="team-list"></div>
+          </div>
+
+          <!-- ── TESTIMONIALS ── -->
+          <div class="panel" id="panel-testimonials">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-xl font-bold">Testimonials</h3>
+                <p class="text-sm mt-1" style="color:var(--muted)">Manage client feedback and ratings.</p>
+              </div>
+              <button class="btn btn-primary" onclick="openModal('testimonial')">+ Add Testimonial</button>
+            </div>
+            <div class="admin-card" id="testimonials-list"></div>
+          </div>
+
+          <!-- ── ABOUT ── -->
+          <div class="panel" id="panel-about">
+            <div class="mb-6">
+              <h3 class="text-xl font-bold">About Section</h3>
+              <p class="text-sm mt-1" style="color:var(--muted)">Edit the "Who We Are" section content.</p>
+            </div>
+            <div class="admin-card">
+              <div class="admin-card-header"><span class="font-semibold text-sm">About Content</span></div>
+              <div class="p-5 space-y-4">
+                <div>
+                  <label class="field-label" for="ab-title">Headline</label>
+                  <input type="text" id="ab-title" class="field-input" placeholder="Engineering digital solutions with purpose..." />
+                </div>
+                <div>
+                  <label class="field-label" for="ab-desc">Description</label>
+                  <textarea id="ab-desc" rows="5" class="field-input" placeholder="BraeNova IT Solutions delivers..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="saveAbout()">💾 Save About Section</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── CONTACT INFO ── -->
+          <div class="panel" id="panel-contact">
+            <div class="mb-6">
+              <h3 class="text-xl font-bold">Contact Information</h3>
+              <p class="text-sm mt-1" style="color:var(--muted)">Update contact details and social media links.</p>
+            </div>
+            <div class="admin-card">
+              <div class="admin-card-header"><span class="font-semibold text-sm">Contact Details</span></div>
+              <div class="p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="field-label" for="ci-email">Email Address</label>
+                    <input type="email" id="ci-email" class="field-input" placeholder="info@braenova.com" />
+                  </div>
+                  <div>
+                    <label class="field-label" for="ci-phone">Phone Number</label>
+                    <input type="tel" id="ci-phone" class="field-input" placeholder="+675 7000 0000" />
+                  </div>
+                </div>
+                <div>
+                  <label class="field-label" for="ci-address">Address / Location</label>
+                  <input type="text" id="ci-address" class="field-input" placeholder="Port Moresby, Papua New Guinea" />
+                </div>
+                <hr style="border-color:var(--border)">
+                <p class="text-sm font-semibold">Social Media Links</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label class="field-label" for="ci-twitter">Twitter / X URL</label>
+                    <input type="url" id="ci-twitter" class="field-input" placeholder="https://twitter.com/..." />
+                  </div>
+                  <div>
+                    <label class="field-label" for="ci-linkedin">LinkedIn URL</label>
+                    <input type="url" id="ci-linkedin" class="field-input" placeholder="https://linkedin.com/in/..." />
+                  </div>
+                  <div>
+                    <label class="field-label" for="ci-github">GitHub URL</label>
+                    <input type="url" id="ci-github" class="field-input" placeholder="https://github.com/..." />
+                  </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveContact()">💾 Save Contact Info</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── MESSAGES ── -->
+          <div class="panel" id="panel-messages">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-xl font-bold">Messages Inbox</h3>
+                <p class="text-sm mt-1" style="color:var(--muted)">Customer inquiries submitted through your website contact form.</p>
+              </div>
+              <button class="btn btn-secondary" onclick="loadMessages()">🔄 Refresh</button>
+            </div>
+            <div class="admin-card" id="messages-list"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         MODAL
+    ══════════════════════════════════════ -->
+    <div id="modal-overlay">
+      <div class="modal-box">
+        <div class="flex items-center justify-between mb-6 pb-4" style="border-bottom:1px solid var(--border)">
+          <h3 class="text-lg font-bold" id="modal-title">Edit Item</h3>
+          <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.3rem;line-height:1">✕</button>
+        </div>
+        <div id="modal-body" class="space-y-4"></div>
+        <div class="flex gap-3 mt-6">
+          <button class="btn btn-primary flex-1" id="modal-save-btn" onclick="saveModal()">Save Item</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"></div>
+
+    <!-- ══ Database SDKs & Adapter ══ -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script src="../db.js"></script>
+
+    <script>
+    // ══════════════════════════════════════════════
+    // INITIALIZATION & AUTH
+    // ══════════════════════════════════════════════
+    function updateBackendBadge() {
+      const isFb = BraeNovaDB.mode === 'firebase';
+      const badge = document.getElementById('backend-badge');
+      if (badge) {
+        badge.textContent = isFb ? '🔥 Firebase Cloud' : '⚡ Local Storage Mode';
+        badge.className = 'badge ' + (isFb ? 'badge-success' : '');
+      }
+      const pill = document.getElementById('db-status-pill');
+      if (pill) {
+        pill.textContent = isFb ? '🔥 Firebase Cloud configured.' : '⚡ Local Storage Database ready to use.';
+      }
+    }
+
+    function checkAuth() {
+      if (BraeNovaDB.isLoggedIn()) {
+        const user = BraeNovaDB.getCurrentUser();
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-app').classList.add('active');
+        document.getElementById('user-email').textContent = user ? user.email : 'admin@braenova.com';
+        document.getElementById('topbar-user').textContent = user ? user.email : 'admin@braenova.com';
+        updateBackendBadge();
+        loadDashboard();
+      } else {
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('admin-app').classList.remove('active');
+        updateBackendBadge();
+      }
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const pass  = document.getElementById('login-password').value;
+      const btn   = document.getElementById('login-btn');
+      const err   = document.getElementById('login-error');
+
+      btn.textContent = 'Signing in…'; btn.disabled = true;
+      err.classList.add('hidden');
+
+      try {
+        await BraeNovaDB.login(email, pass);
+        checkAuth();
+        showToast('Signed in successfully!', 'success');
+      } catch(e) {
+        err.textContent = e.message || 'Invalid credentials.';
+        err.classList.remove('hidden');
+      }
+      btn.textContent = 'Sign In →'; btn.disabled = false;
+    });
+
+    async function quickLogin() {
+      await BraeNovaDB.login('admin@braenova.com', 'admin123');
+      checkAuth();
+      showToast('Signed in to Admin Dashboard!', 'success');
+    }
+
+    document.getElementById('signout-btn').addEventListener('click', async () => {
+      await BraeNovaDB.logout();
+      checkAuth();
+      showToast('Signed out.', 'success');
+    });
+
+    // ══════════════════════════════════════════════
+    // PANEL NAVIGATION
+    // ══════════════════════════════════════════════
+    const panelTitles = {
+      dashboard:'Dashboard', hero:'Hero Section', services:'Services',
+      products:'Products', team:'Team Members', testimonials:'Testimonials',
+      about:'About Section', contact:'Contact Information', messages:'Messages Inbox'
+    };
+
+    function switchPanel(name) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      const targetPanel = document.getElementById(`panel-${name}`);
+      if (targetPanel) targetPanel.classList.add('active');
+      const navBtn = document.querySelector(`.nav-item[data-panel="${name}"]`);
+      if (navBtn) navBtn.classList.add('active');
+      document.getElementById('page-title').textContent = panelTitles[name] || name;
+
+      if (name === 'dashboard')    loadDashboard();
+      if (name === 'services')     loadCollection('services');
+      if (name === 'products')     loadCollection('products');
+      if (name === 'team')         loadCollection('team');
+      if (name === 'testimonials') loadCollection('testimonials');
+      if (name === 'hero')         loadHero();
+      if (name === 'about')        loadAbout();
+      if (name === 'contact')      loadContactInfo();
+      if (name === 'messages')     loadMessages();
+    }
+
+    document.querySelectorAll('.nav-item[data-panel]').forEach(btn => {
+      btn.addEventListener('click', () => switchPanel(btn.dataset.panel));
+    });
+
+    // ══════════════════════════════════════════════
+    // DASHBOARD STATS
+    // ══════════════════════════════════════════════
+    async function loadDashboard() {
+      try {
+        const [sv, pr, tm, ms] = await Promise.all([
+          BraeNovaDB.getCollection('services'),
+          BraeNovaDB.getCollection('products'),
+          BraeNovaDB.getCollection('team'),
+          BraeNovaDB.getMessages()
+        ]);
+        document.getElementById('stat-services').textContent  = sv.length;
+        document.getElementById('stat-products').textContent  = pr.length;
+        document.getElementById('stat-team').textContent      = tm.length;
+        document.getElementById('stat-messages').textContent  = ms.length;
+
+        const unread = ms.filter(m => m.read === false).length;
+        const badge = document.getElementById('unread-badge');
+        if (badge) {
+          badge.textContent = unread;
+          badge.classList.toggle('hidden', unread === 0);
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    // ══════════════════════════════════════════════
+    // GENERIC COLLECTION CRUD
+    // ══════════════════════════════════════════════
+    const listMap = { service:'services-list', product:'products-list', team:'team-list', testimonial:'testimonials-list' };
+    const nameMap = { service:'services', product:'products', team:'team', testimonial:'testimonials' };
+
+    function getItemLabel(type, d) {
+      if (type === 'service' || type === 'product') return d.title || '(Untitled)';
+      if (type === 'team') return d.name || '(No name)';
+      if (type === 'testimonial') return d.name || d.author || '(No author)';
+      return '(Item)';
+    }
+    function getItemSub(type, d) {
+      if (type === 'service' || type === 'product') return (d.description||'').substring(0,80) + ((d.description||'').length > 80 ? '…' : '');
+      if (type === 'team') return d.role || '';
+      if (type === 'testimonial') return (d.content || d.quote || '').substring(0,60) + '…';
+      return '';
+    }
+    function getItemIcon(type, d) {
+      if (type === 'service') return d.icon || '⚡';
+      if (type === 'product') return d.icon || '📦';
+      if (type === 'team') return d.photo_url ? `<img src="${d.photo_url}" style="width:36px;height:36px;border-radius:8px;object-fit:cover">` : `<span style="font-size:.85rem;font-weight:700;color:var(--accent)">${(d.name||'?').charAt(0).toUpperCase()}</span>`;
+      if (type === 'testimonial') return '⭐';
+      return '•';
+    }
+
+    async function loadCollection(col) {
+      const type = Object.keys(nameMap).find(k => nameMap[k] === col);
+      const listId = listMap[type];
+      const el = document.getElementById(listId);
+      if (!el) return;
+      el.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:.85rem">Loading…</div>';
+
+      try {
+        const items = await BraeNovaDB.getCollection(col);
+        if (!items || !items.length) {
+          el.innerHTML = `<div class="empty-state"><div class="icon">${type==='service'?'⚡':type==='product'?'📦':type==='team'?'👥':'💬'}</div>No ${col} added yet. Click "+ Add" above.</div>`;
+          return;
+        }
+        el.innerHTML = items.map(d => `
+          <div class="item-row">
+            <div class="item-icon">${getItemIcon(type, d)}</div>
+            <div style="flex:1;min-width:0">
+              <div class="font-semibold text-sm truncate">${getItemLabel(type, d)}</div>
+              <div class="text-xs truncate" style="color:var(--muted)">${getItemSub(type, d)}</div>
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+              <button class="btn btn-secondary btn-xs" onclick="openModal('${type}','${d.id}')">Edit</button>
+              <button class="btn btn-danger btn-xs" onclick="deleteItem('${col}','${d.id}','${type}')">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      } catch(e) {
+        el.innerHTML = `<div class="empty-state" style="color:#f87171">Error loading data: ${e.message}</div>`;
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // MODAL EDITING
+    // ══════════════════════════════════════════════
+    let modalType = null, modalDocId = null, modalRating = 5;
+
+    const modalFields = {
+      service: [
+        { id:'m-icon',  label:'Icon (emoji)',  type:'text',     placeholder:'🌐',  tip:'Use any emoji as the service icon' },
+        { id:'m-title', label:'Title',          type:'text',     placeholder:'Full-Stack Web Development', required:true },
+        { id:'m-desc',  label:'Description',    type:'textarea', placeholder:'Describe what this service offers…', required:true },
+        { id:'m-order', label:'Display Order',  type:'number',   placeholder:'1' }
+      ],
+      product: [
+        { id:'m-icon',  label:'Icon (emoji)',   type:'text',     placeholder:'📦' },
+        { id:'m-title', label:'Title',           type:'text',     placeholder:'BraeNova StockMaster', required:true },
+        { id:'m-desc',  label:'Description',     type:'textarea', placeholder:'What does this product do?', required:true },
+        { id:'m-tags',  label:'Tags (comma-separated)', type:'text', placeholder:'Mobile, Inventory, POS' },
+        { id:'m-order', label:'Display Order',   type:'number',   placeholder:'1' }
+      ],
+      team: [
+        { id:'m-name',  label:'Full Name',       type:'text',     placeholder:'Joel Namuri',       required:true },
+        { id:'m-role',  label:'Role / Title',     type:'text',     placeholder:'Lead Architect',    required:true },
+        { id:'m-bio',   label:'Short Bio',        type:'textarea', placeholder:'Brief description…' },
+        { id:'m-photo', label:'Photo URL',        type:'url',      placeholder:'https://example.com/photo.jpg', tip:'Image URL (optional)' },
+        { id:'m-order', label:'Display Order',    type:'number',   placeholder:'1' }
+      ],
+      testimonial: [
+        { id:'m-name',    label:'Client Name',      type:'text',     placeholder:'David K.',         required:true },
+        { id:'m-role',    label:'Role / Title',     type:'text',     placeholder:'Operations Director', required:true },
+        { id:'m-company', label:'Company',          type:'text',     placeholder:'Pacific Logistics Ltd' },
+        { id:'m-content', label:'Testimonial Quote',type:'textarea', placeholder:'What did they say?', required:true },
+        { id:'m-rating',  label:'Rating',           type:'stars' },
+        { id:'m-order',   label:'Display Order',    type:'number',   placeholder:'1' }
+      ]
+    };
+
+    function buildModalField(f, val='') {
+      let html = `<div><label class="field-label" for="${f.id}">${f.label}${f.required?' <span style="color:#f87171">*</span>':''}</label>`;
+      if (f.type === 'textarea') {
+        html += `<textarea id="${f.id}" rows="3" class="field-input" placeholder="${f.placeholder||''}">${val}</textarea>`;
+      } else if (f.type === 'stars') {
+        html += `<div id="stars-picker" class="flex gap-1 mt-1">${[1,2,3,4,5].map(n=>`<button type="button" class="star-btn${n<=modalRating?' active':''}" data-star="${n}" onclick="setRating(${n})">★</button>`).join('')}</div>`;
+      } else {
+        html += `<input type="${f.type}" id="${f.id}" class="field-input" placeholder="${f.placeholder||''}" value="${val?val.toString().replace(/"/g,'&quot;'):''}" />`;
+      }
+      if (f.tip) html += `<p class="text-xs mt-1" style="color:var(--muted)">${f.tip}</p>`;
+      html += '</div>';
+      return html;
+    }
+
+    async function openModal(type, docId = null) {
+      modalType  = type;
+      modalDocId = docId;
+      modalRating = 5;
+
+      const isEdit = !!docId;
+      document.getElementById('modal-title').textContent = (isEdit ? 'Edit ' : 'Add ') +
+        ({service:'Service',product:'Product',team:'Team Member',testimonial:'Testimonial'}[type]||type);
+
+      let existing = {};
+      if (isEdit) {
+        const col = nameMap[type];
+        const items = await BraeNovaDB.getCollection(col);
+        existing = items.find(x => x.id === docId) || {};
+        modalRating = existing.rating || 5;
+      }
+
+      const fields = modalFields[type] || [];
+      document.getElementById('modal-body').innerHTML = fields.map(f => {
+        let val = '';
+        if (f.id === 'm-tags' && existing.tags) val = existing.tags.join(', ');
+        else {
+          const key = f.id.replace('m-','');
+          const mapping = { icon:'icon',title:'title',desc:'description',name:'name',role:'role',
+            bio:'bio',photo:'photo_url',company:'company',content:'content',quote:'content',order:'order' };
+          val = existing[mapping[key]] ?? '';
+        }
+        return buildModalField(f, val);
+      }).join('');
+
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function setRating(n) {
+      modalRating = n;
+      document.querySelectorAll('.star-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.star) <= n);
+      });
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+      modalType = modalDocId = null;
+    }
+
+    async function saveModal() {
+      if (!modalType) return;
+      const btn = document.getElementById('modal-save-btn');
+      btn.textContent = 'Saving…'; btn.disabled = true;
+
+      try {
+        let data = {};
+        const fields = modalFields[modalType] || [];
+        for (const f of fields) {
+          if (f.type === 'stars') { data.rating = modalRating; continue; }
+          const el = document.getElementById(f.id);
+          if (!el) continue;
+          const val = el.value.trim();
+          if (f.required && !val) { showToast(`"${f.label}" is required.`,'error'); btn.textContent='Save Item'; btn.disabled=false; return; }
+          const keyMap = { 'm-icon':'icon','m-title':'title','m-desc':'description','m-name':'name',
+            'm-role':'role','m-bio':'bio','m-photo':'photo_url','m-company':'company',
+            'm-content':'content','m-order':'order','m-tags':'tags_raw' };
+          const key = keyMap[f.id];
+          if (key === 'order') data.order = parseInt(val) || 0;
+          else if (key === 'tags_raw') data.tags = val ? val.split(',').map(t=>t.trim()).filter(Boolean) : [];
+          else if (key) data[key] = val;
+        }
+
+        const col = nameMap[modalType];
+        if (modalDocId) {
+          await BraeNovaDB.updateItem(col, modalDocId, data);
+          showToast('Updated successfully!','success');
+        } else {
+          await BraeNovaDB.addItem(col, data);
+          showToast('Added successfully!','success');
+        }
+
+        closeModal();
+        loadCollection(col);
+        loadDashboard();
+      } catch(e) {
+        console.error(e);
+        showToast('Error: ' + e.message, 'error');
+      }
+      btn.textContent = 'Save Item'; btn.disabled = false;
+    }
+
+    async function deleteItem(col, docId, type) {
+      if (!confirm('Delete this item? This cannot be undone.')) return;
+      try {
+        await BraeNovaDB.deleteItem(col, docId);
+        showToast('Deleted item.','success');
+        loadCollection(col);
+        loadDashboard();
+      } catch(e) { showToast('Delete failed: ' + e.message, 'error'); }
+    }
+
+    // ══════════════════════════════════════════════
+    // HERO & SITE CONFIGS
+    // ══════════════════════════════════════════════
+    async function loadHero() {
+      try {
+        const d = await BraeNovaDB.getConfig('hero');
+        if (d.headline)      document.getElementById('h-headline').value   = d.headline;
+        if (d.subheading)    document.getElementById('h-subheading').value = d.subheading;
+        if (d.cta_primary)   document.getElementById('h-cta1').value       = d.cta_primary;
+        if (d.cta_secondary) document.getElementById('h-cta2').value       = d.cta_secondary;
+      } catch(e) { console.error(e); }
+    }
+
+    async function saveHero() {
+      try {
+        await BraeNovaDB.saveConfig('hero', {
+          headline:      document.getElementById('h-headline').value.trim(),
+          subheading:    document.getElementById('h-subheading').value.trim(),
+          cta_primary:   document.getElementById('h-cta1').value.trim(),
+          cta_secondary: document.getElementById('h-cta2').value.trim()
+        });
+        showToast('Hero section updated!','success');
+      } catch(e) { showToast('Save failed: ' + e.message,'error'); }
+    }
+
+    async function loadAbout() {
+      try {
+        const d = await BraeNovaDB.getConfig('about');
+        if (d.title)       document.getElementById('ab-title').value = d.title;
+        if (d.description) document.getElementById('ab-desc').value  = d.description;
+      } catch(e) { console.error(e); }
+    }
+
+    async function saveAbout() {
+      try {
+        await BraeNovaDB.saveConfig('about', {
+          title:       document.getElementById('ab-title').value.trim(),
+          description: document.getElementById('ab-desc').value.trim()
+        });
+        showToast('About section updated!','success');
+      } catch(e) { showToast('Save failed: ' + e.message,'error'); }
+    }
+
+    async function loadContactInfo() {
+      try {
+        const d = await BraeNovaDB.getConfig('contact');
+        ['email','phone','address','social_twitter','social_linkedin','social_github'].forEach(k => {
+          const el = document.getElementById(`ci-${k.replace('social_','')}`);
+          if (el && d[k]) el.value = d[k];
+        });
+      } catch(e) { console.error(e); }
+    }
+
+    async function saveContact() {
+      try {
+        await BraeNovaDB.saveConfig('contact', {
+          email:           document.getElementById('ci-email').value.trim(),
+          phone:           document.getElementById('ci-phone').value.trim(),
+          address:         document.getElementById('ci-address').value.trim(),
+          social_twitter:  document.getElementById('ci-twitter').value.trim(),
+          social_linkedin: document.getElementById('ci-linkedin').value.trim(),
+          social_github:   document.getElementById('ci-github').value.trim()
+        });
+        showToast('Contact info updated!','success');
+      } catch(e) { showToast('Save failed: ' + e.message,'error'); }
+    }
+
+    // ══════════════════════════════════════════════
+    // MESSAGES
+    // ══════════════════════════════════════════════
+    async function loadMessages() {
+      const el = document.getElementById('messages-list');
+      if (!el) return;
+      el.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:.85rem">Loading…</div>';
+
+      try {
+        const msgs = await BraeNovaDB.getMessages();
+        if (!msgs || !msgs.length) {
+          el.innerHTML = '<div class="empty-state"><div class="icon">📩</div>No messages yet.</div>';
+          return;
+        }
+
+        const unread = msgs.filter(m => m.read === false).length;
+        const badge = document.getElementById('unread-badge');
+        if (badge) { badge.textContent = unread; badge.classList.toggle('hidden', unread === 0); }
+
+        el.innerHTML = msgs.map(m => {
+          const date = m.timestamp ? new Date(m.timestamp).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : '—';
+          return `
+            <div class="msg-item${m.read===false?' unread':''}" onclick="toggleMsg('${m.id}', this)">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-semibold text-sm">${m.name || '(No name)'}</span>
+                  ${m.read===false?'<span class="badge ml-2">New</span>':''}
+                  <span class="text-xs ml-2" style="color:var(--muted)">${m.email||''}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-xs" style="color:var(--muted)">${date}</span>
+                  <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();deleteMsg('${m.id}')">Delete</button>
+                </div>
+              </div>
+              ${m.project_type?`<div class="text-xs mt-0.5" style="color:var(--accent)">${m.project_type}</div>`:''}
+              <div class="msg-body" id="msg-${m.id}">${m.message || '(No message content)'}</div>
+            </div>`;
+        }).join('');
+      } catch(e) { el.innerHTML = `<div class="empty-state" style="color:#f87171">Error: ${e.message}</div>`; }
+    }
+
+    async function toggleMsg(id, el) {
+      const body = document.getElementById(`msg-${id}`);
+      if (body) body.classList.toggle('open');
+      if (el.classList.contains('unread')) {
+        el.classList.remove('unread');
+        await BraeNovaDB.markMessageRead(id);
+        const badge = document.getElementById('unread-badge');
+        if (badge) {
+          const count = Math.max(0, parseInt(badge.textContent || 0) - 1);
+          badge.textContent = count;
+          badge.classList.toggle('hidden', count <= 0);
+        }
+      }
+    }
+
+    async function deleteMsg(id) {
+      if (!confirm('Delete this inquiry message?')) return;
+      await BraeNovaDB.deleteMessage(id);
+      showToast('Message deleted.', 'success');
+      loadMessages();
+      loadDashboard();
+    }
+
+    // ══════════════════════════════════════════════
+    // BACKUP TOOLS
+    // ══════════════════════════════════════════════
+    function downloadBackup() {
+      const data = BraeNovaDB.exportAll();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `braenova-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Backup JSON downloaded!', 'success');
+    }
+
+    function handleImport(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const json = JSON.parse(evt.target.result);
+          BraeNovaDB.importAll(json);
+          showToast('Database imported successfully!', 'success');
+          loadDashboard();
+        } catch(err) {
+          showToast('Failed to import JSON: ' + err.message, 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetDefaults() {
+      if (!confirm('Reset entire database back to default seed data? All custom additions will be restored to initial defaults.')) return;
+      BraeNovaDB.resetToDefaults();
+      showToast('Database restored to defaults.', 'success');
+      loadDashboard();
+    }
+
+    // ══════════════════════════════════════════════
+    // TOAST NOTIFICATIONS
+    // ══════════════════════════════════════════════
+    let toastTimer;
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+      t.className = `show ${type}`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.className = ''; }, 3200);
+    }
+
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      if (typeof BraeNovaDB !== 'undefined') {
+        BraeNovaDB.onUpdate(() => {
+          if (BraeNovaDB.isLoggedIn()) loadDashboard();
+        });
+      }
+    });
+    </script>
+  </body>
+</html>
