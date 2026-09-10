@@ -21,8 +21,8 @@
       description: 'BraeNova IT Solutions delivers enterprise-grade software engineering, modern cloud infrastructure, and localized technology solutions. We bridge technological gaps with robust systems tailored for businesses, educational institutions, and emerging enterprises.'
     },
     contact: {
-      email: 'info@braenova.com',
-      phone: '+675 7000 0000',
+      email: 'braenovaitsolutions@gmail.com',
+      phone: '+675 8190 8393',
       address: 'Port Moresby, Papua New Guinea',
       social_github: 'https://github.com/JoelNamuri',
       social_linkedin: 'https://linkedin.com',
