@@ -816,11 +816,12 @@
 
       btn.textContent = 'Sending…'; btn.disabled = true;
 
+      const phone = document.getElementById('f-phone').value.trim();
       const payload = {
         name,
         email,
-        phone:        document.getElementById('f-phone').value.trim(),
-        project_type: document.getElementById('f-type').value,
+        phone:        phone || '',
+        project_type: document.getElementById('f-type').value || 'General Inquiry',
         message,
         timestamp:    new Date().toISOString(),
         read:         false
@@ -837,12 +838,12 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({
-            _subject: `New BraeNova Inquiry from ${name} (${payload.project_type || 'General'})`,
-            name: name,
-            email: email,
-            phone: payload.phone || 'N/A',
-            project_type: payload.project_type || 'General',
-            message: message,
+            _subject: `New BraeNova Inquiry from ${name}${phone ? ' [Tel: ' + phone + ']' : ''}`,
+            "Client Name": name,
+            "Email Address": email,
+            "Phone / Mobile": phone ? phone : 'Not provided',
+            "Project Type": payload.project_type,
+            "Message": message,
             _template: 'table'
           })
         }).catch(err => console.warn('[Contact Email] Email relay notice:', err));
